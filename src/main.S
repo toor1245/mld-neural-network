@@ -4,19 +4,25 @@
 
 	.section .text
 ENTRY(main)
-	addi	sp, sp, -48
+	addi	sp, sp, -80
 	sd	fp, 0(sp)
 	sd	ra, 8(sp)
 	sd	s1, 16(sp)
 	sd	s2, 24(sp)
 	sd	s3, 32(sp)
 	sd	s4, 48(sp)
+	sd	s5, 56(sp)
+	sd	s6, 64(sp)
+	sd	s7, 72(sp)
 
 	li	a0, MLD_MATRIX_SIZE
 	call	malloc
 	beqz	a0, L(err)
 
-	mv	a2, a0
+	// Reserve allocated MldMatrixInt64
+	mv	s7, a0
+
+	mv	a2, s7
 	li	a0, 5
 	li	a1, 5
 	call	mldCreateMatrixInt64
@@ -40,8 +46,8 @@ ENTRY(main)
 	addi	s1, s1, 1	// i++
 	j	0b
 1:
-
-	mv	a0, a1
+	// Print MldMatrixInt64
+	mv	a0, s7
 	call	mldPrintMatrixInt64
 
 	li	a0, MLD_EXIT_SUCCESS
@@ -57,6 +63,9 @@ L(out):
 	ld	s2, 24(sp)
 	ld	s3, 32(sp)
 	ld	s4, 48(sp)
-	addi	sp, sp, 16
+	ld	s5, 56(sp)
+	ld	s6, 64(sp)
+	ld	s7, 72(sp)
+	addi	sp, sp, 80
 	ret
 END(main)

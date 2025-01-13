@@ -66,7 +66,6 @@ ENTRY(mldCreateMatrixInt64)
 	sd	s2, MLD_MATRIX_COLUMNS_OFFSET(s3)
 
 	li	a0, MLD_SUCCESS
-	mv	a1, s3
 	
 L(out):
 	ld	ra, 40(sp)
@@ -111,6 +110,82 @@ ENTRY(mldGetItemMatrixInt64)
 	ret
 END(mldGetItemMatrixInt64)
 
+// Gets matrix row by index
+//
+// Parameters:
+// 	a0 - holds address of MldMatrixInt64
+//	a1 - holds row index
+//	a2 - holds pointer to row matrix that will be initialized
+//
+// Valid Usage:
+// 	* a0 - must be valid address of MldMatrixInt64
+//	* a1 - row index must be greater or equal 0 and less than row size of
+//	       matrix
+//	* a2 - output row matrix
+//
+// Returns:
+//	* Matrix value by index row and column
+ENTRY(mldGetRowMatrixInt64)
+	addi	sp, sp, -32
+	sd	fp, 0(sp)
+	sd	ra, 8(sp)
+	sd	s1, 16(sp)
+	sd	s2, 24(sp)
+	sd	s3, 32(sp)
+	sd	s4, 40(sp)
+
+	// Reserve input arguments
+	mv	s0, a0
+	mv	s1, a1
+
+	// Reserve input matrix fields
+	ld	s2, MLD_MATRIX_ROWS_OFFSET(s0)
+	ld	s3, MLD_MATRIX_COLUMNS_OFFSET(s0)
+
+	// Allocate memory for MldMatrixInt64
+	mv	a0, s3
+	sll	a0, a0, 3	// 64 bit size 
+	call	malloc
+
+	// Check on NULL allocated memory
+	beqz	a0, L(mem_err)
+
+	// Reserve MldMatrixInt64 to save register
+	mv	s4, a0
+
+	// Init MldMatrixInt64
+	mv	a0, s3
+	li	a1, 1
+	mv	a2, s4
+	call	mldCreateMatrixInt64
+
+	// Check result value
+	bneqz	a0, L(out)
+
+	ld	a0, MLD_MATRIX_ARRAY_OFFSET(s4)
+	// a1 = array[row_idx * columns]
+	ld	a1, MLD_MATRIX_ARRAY_OFFSET(s0)
+	mul	t0, s1, s3
+	sll	a1, t0, 3
+	sll	a2, s3, 3
+	call	memcpy
+
+	li	a0, MLD_SUCCESS
+L(out):
+	ld	fp, 0(sp)
+	ld	ra, 8(sp)
+	ld	s1, 16(sp)
+	ld	s2, 24(sp)
+	sd	s3, 32(sp)
+	sd	s4, 40(sp)
+	addi	sp, sp, 16
+	ret
+
+L(mem_err):
+	li	a0, MLD_UNABLE_ALLOCATE_MEMORY
+	j	L(out)
+END(mldGetItemMatrixInt64)
+
 // Sets matrix item of MldMatrixInt64 by row and column indexes
 //
 // Parameters:
@@ -134,7 +209,7 @@ ENTRY(mldSetItemMatrixInt64)
 	ret
 END(mldSetItemMatrixInt64)
 
-// Sets matrix item of MldMatrixInt64 by row and column indexes
+// Add matrices
 //
 // Parameters:
 // 	a0 - holds address of left MldMatrixInt64 (MldMatrixInt64*)
@@ -170,13 +245,19 @@ ENTRY(mldAddMatrixInt64)
 	li	a0, MLD_MATRIX_SIZE
 	call	malloc
 
+	// Check allocated memory on NULL
+	beqz	a0, L(mem_err)
+
 	// Create output MldMatrixInt64
 	mv	a2, a0
 	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
 	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
 	call	mldCreateMatrixInt64
-	mv	s3, a1
 
+	// Check MldResult value on MLD_SUCCESS
+	mv	s3, a0
+	bneqz	a0, L(err)
+	
 	li	t4, 0		// i-counter
 	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
 0:
@@ -194,6 +275,7 @@ ENTRY(mldAddMatrixInt64)
 	mldGetItemByIdxMatrixInt64Inline
 	mov	a3, a0
 
+	// output[i] = left[i] + right[i]
 	mv	a0, s3
 	mv	a1, t4
 	add	a2, t6, a3
@@ -202,6 +284,9 @@ ENTRY(mldAddMatrixInt64)
 	addi	t0, t0, 1
 	j	0b
 1:
+	li	a0, MLD_SUCCESS
+
+L(out):
 	ld	s0, 0(sp)
 	ld	ra, 8(sp)
 	ld	s1, 16(sp)
@@ -209,7 +294,110 @@ ENTRY(mldAddMatrixInt64)
 	ld	s3, 32(sp)
 	addi	sp, sp, 48
 	ret
+
+L(err):
+	li	a0, s3
+	j	L(out)
+
+L(mem_err):
+	li	a0, MLD_UNABLE_ALLOCATE_MEMORY
+	j	L(out)
 END(mldAddMatrixInt64)
+
+// Sub matrices
+//
+// Parameters:
+// 	a0 - holds address of left MldMatrixInt64 (MldMatrixInt64*)
+//	a1 - holds address of right MldMatrixInt64 (MldMatrixInt64*)
+//	a2 - holds address to address of output MldMatrixInt64
+//	     (MldMatrixInt64**)
+//
+// Valid Usage:
+// 	* a0 - must be valid address of MldMatrixInt64
+//	* a1 - must be valid address of MldMatrixInt64
+//	* a2 - must be valid address of MldMatrixInt64
+//	* Rows left and right matrices must be the same
+//	* Columns left and right matrices must be the same
+//
+// Return Codes:
+// 	* On success, this command returns:
+//	    - MLD_SUCCESS 
+//	* On failurre, this command returns:
+//	    - MLD_INVALID_ARGUMENT
+//	    - MLD_UNABLE_TO_ALLOCATE_MEMORY
+ENTRY(mldSubMatrixInt64)
+	addi	sp, sp, -48
+	sd	s0, 0(sp)
+	sd	ra, 8(sp)
+	sd	s1, 16(sp)
+	sd	s2, 24(sp)
+	sd	s3, 32(sp)
+
+	mv	s0, a0  
+	mv	s1, a1
+	mv	s2, a2
+
+	li	a0, MLD_MATRIX_SIZE
+	call	malloc
+
+	// Check allocated memory on NULL
+	beqz	a0, L(mem_err)
+
+	// Create output MldMatrixInt64
+	mv	a2, a0
+	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
+	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
+	call	mldCreateMatrixInt64
+
+	// Check MldResult value on MLD_SUCCESS
+	mv	s3, a0
+	bneqz	a0, L(err)
+	
+	li	t4, 0		// i-counter
+	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
+0:
+	beq	t4, t5, 1f
+
+	// Get element of left matrix
+	mv	a0, s0
+	mv	a1, t4
+	mldGetItemByIdxMatrixInt64Inline
+	mov	t6, a0
+
+	// Get element of right matrix
+	mv	a0, s1
+	mv	a1, t4
+	mldGetItemByIdxMatrixInt64Inline
+	mov	a3, a0
+
+	// output[i] = left[i] - right[i]
+	mv	a0, s3
+	mv	a1, t4
+	sub	a2, t6, a3
+	mldSetItemByIdxMatrixInt64Inline
+
+	addi	t0, t0, 1
+	j	0b
+1:
+	li	a0, MLD_SUCCESS
+
+L(out):
+	ld	s0, 0(sp)
+	ld	ra, 8(sp)
+	ld	s1, 16(sp)
+	ld	s2, 24(sp)
+	ld	s3, 32(sp)
+	addi	sp, sp, 48
+	ret
+
+L(err):
+	li	a0, s3
+	j	L(out)
+
+L(mem_err):
+	li	a0, MLD_UNABLE_ALLOCATE_MEMORY
+	j	L(out)
+END(mldSubMatrixInt64)
 
 // Prints matrix of MldMatrixInt64
 //
