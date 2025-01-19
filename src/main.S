@@ -1,6 +1,4 @@
-#include "mld_matrix.h"
 #include "mld_asmdefs.h"
-#include "mld_common.h"
 
 	.section .text
 ENTRY(main)

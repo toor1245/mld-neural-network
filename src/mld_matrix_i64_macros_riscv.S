@@ -1,6 +1,4 @@
-#include "mld_matrix.h"
 #include "mld_asmdefs.h"
-#include "mld_common.h"
 
 // Gets matrix item of MldMatrixInt64 by row and column indexes, inline
 //
@@ -27,7 +25,7 @@
 	sll	t2, t2, 3
 	add	t3, t0, t2
 	ld	a0, 0(t3)
-.endmacro
+.endm
 
 // Gets matrix item of MldMatrixInt64 by array index, inline
 //
@@ -49,7 +47,7 @@
 	sll	t1, a1, 3
 	add	t2, t0, t1
 	ld	a0, 0(t2)
-.endmacro
+.endm
 
 // Sets matrix item of MldMatrixInt64 by row and column indexes, inline
 //
@@ -74,7 +72,7 @@
 	sll	t2, t2, 3
 	add	t3, t0, t2
 	sd	a3, 0(t3)
-.endmacro
+.endm
 
 // Sets matrix item of MldMatrixInt64 by array index, inline
 //
@@ -94,4 +92,4 @@
 	sll	t1, a1, 3
 	add	t2, t0, t1
 	sd	a2, 0(t2)
-.endmacro
+.endm

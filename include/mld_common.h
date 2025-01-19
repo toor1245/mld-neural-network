@@ -1,14 +1,19 @@
 #ifndef MLD_INCLUDE_COMMON_H
 #define MLD_INCLUDE_COMMON_H
 
-// MLD Result Status Codes
-#define MLD_SUCCESS			0
-#define MLD_FAILURE			1
-#define MLD_UNABLE_ALLOCATE_MEMORY	2
-#define MLD_INVALID_ARGUMENT		3
+#include <stdint.h>
 
-// MLD Exit Status Codes
-#define MLD_EXIT_SUCCESS	0
-#define MLD_EXIT_FAILURE	1
+#include "mld_macros.h"
+
+MLD_START_CPP_NAMESPACE
+
+enum MldResult {
+	MLD_RESULT_SUCCESS = 0,
+	MLD_RESULT_FAILURE = 1,
+	MLD_RESULT_UNABLE_ALLOCATE_MEMORY = 2,
+	MLD_RESULT_INVALID_ARGUMENT = 3,
+};
+
+MLD_END_CPP_NAMESPACE
 
 #endif // MLD_INCLUDE_COMMON_H
