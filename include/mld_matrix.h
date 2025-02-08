@@ -23,7 +23,8 @@ MldResult mldCreateMatrixInt64(uint64_t rows, uint64_t columns, MldMatrixInt64 *
 
 uint64_t mldGetItemMatrixInt64(MldMatrixInt64 *matrix, uint64_t row, uint64_t column);
 
-uint64_t mldSetItemMatrixInt64(MldMatrixInt64 *matrix, uint64_t row, uint64_t column);
+uint64_t mldSetItemMatrixInt64(MldMatrixInt64 *matrix, uint64_t row, uint64_t column,
+	int64_t value);
 
 MldResult mldGetRowMatrixInt64(MldMatrixInt64 *matrix, uint64_t row,
 	MldMatrixInt64 *output);

@@ -235,27 +235,23 @@ ENTRY(mldAddMatrixInt64)
 	sd	s1, 16(sp)
 	sd	s2, 24(sp)
 	sd	s3, 32(sp)
+	sd	s4, 40(sp)
 
+	// Reserve input registers
 	mv	s0, a0  
 	mv	s1, a1
 	mv	s2, a2
 
-	li	a0, MLD_MATRIX_SIZE
-	call	malloc
-
-	// Check allocated memory on NULL
-	beqz	a0, L(mem_err2)
-
 	// Create output MldMatrixInt64
-	mv	a2, a0
+	mv	a2, s2
 	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
 	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
 	call	mldCreateMatrixInt64
 
 	// Check MldResult value on MLD_SUCCESS
-	mv	s3, a0
+	mv	s4, a0
 	bnez	a0, L(err2)
-	
+
 	li	t4, 0		// i-counter
 	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
 0:
@@ -274,12 +270,12 @@ ENTRY(mldAddMatrixInt64)
 	mv	a3, a0
 
 	// output[i] = left[i] + right[i]
-	mv	a0, s3
+	mv	a0, s2
 	mv	a1, t4
 	add	a2, t6, a3
 	mldSetItemByIdxMatrixInt64Inline
 
-	addi	t0, t0, 1
+	addi	t4, t4, 1
 	j	0b
 1:
 	li	a0, MLD_SUCCESS
@@ -290,15 +286,12 @@ L(out2):
 	ld	s1, 16(sp)
 	ld	s2, 24(sp)
 	ld	s3, 32(sp)
+	ld	s4, 40(sp)
 	addi	sp, sp, 48
 	ret
 
 L(err2):
-	mv	a0, s3
-	j	L(out2)
-
-L(mem_err2):
-	li	a0, MLD_UNABLE_ALLOCATE_MEMORY
+	mv	a0, s4
 	j	L(out2)
 END(mldAddMatrixInt64)
 
@@ -330,27 +323,23 @@ ENTRY(mldSubMatrixInt64)
 	sd	s1, 16(sp)
 	sd	s2, 24(sp)
 	sd	s3, 32(sp)
+	sd	s4, 40(sp)
 
+	// Reserve input registers
 	mv	s0, a0  
 	mv	s1, a1
 	mv	s2, a2
 
-	li	a0, MLD_MATRIX_SIZE
-	call	malloc
-
-	// Check allocated memory on NULL
-	beqz	a0, L(mem_err3)
-
 	// Create output MldMatrixInt64
-	mv	a2, a0
+	mv	a2, s2
 	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
 	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
 	call	mldCreateMatrixInt64
 
 	// Check MldResult value on MLD_SUCCESS
-	mv	s3, a0
+	mv	s4, a0
 	bnez	a0, L(err3)
-	
+
 	li	t4, 0		// i-counter
 	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
 0:
@@ -369,12 +358,12 @@ ENTRY(mldSubMatrixInt64)
 	mv	a3, a0
 
 	// output[i] = left[i] - right[i]
-	mv	a0, s3
+	mv	a0, s2
 	mv	a1, t4
 	sub	a2, t6, a3
 	mldSetItemByIdxMatrixInt64Inline
 
-	addi	t0, t0, 1
+	addi	t4, t4, 1
 	j	0b
 1:
 	li	a0, MLD_SUCCESS
@@ -385,15 +374,12 @@ L(out3):
 	ld	s1, 16(sp)
 	ld	s2, 24(sp)
 	ld	s3, 32(sp)
+	ld	s4, 40(sp)
 	addi	sp, sp, 48
 	ret
 
 L(err3):
-	mv	a0, s3
-	j	L(out3)
-
-L(mem_err3):
-	li	a0, MLD_UNABLE_ALLOCATE_MEMORY
+	mv	a0, s4
 	j	L(out3)
 END(mldSubMatrixInt64)
 
