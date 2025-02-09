@@ -35,6 +35,15 @@ MldResult mldAddMatrixInt64(MldMatrixInt64 *left, MldMatrixInt64 *right,
 MldResult mldSubMatrixInt64(MldMatrixInt64 *left, MldMatrixInt64 *right,
 	MldMatrixInt64 *output);
 
+MldResult mldAddNumMatrixInt64(MldMatrixInt64 *left, int64_t num,
+	MldMatrixInt64 *output);
+
+MldResult mldSubNumMatrixInt64(MldMatrixInt64 *left, int64_t num,
+	MldMatrixInt64 *output);
+
+MldResult mldMulNumMatrixInt64(MldMatrixInt64 *left, int64_t num,
+	MldMatrixInt64 *output);
+
 void mldPrintMatrixInt64(MldMatrixInt64 *matrix);
 
 MLD_END_CPP_NAMESPACE

@@ -1,7 +1,6 @@
 #
 # add include for tests
 #
-
 include_directories(../include)
 
 add_library(all_libraries

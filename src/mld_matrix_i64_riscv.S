@@ -383,6 +383,236 @@ L(err3):
 	j	L(out3)
 END(mldSubMatrixInt64)
 
+// Mul matrix by number
+//
+// Parameters:
+// 	a0 - holds address of left MldMatrixInt64 (MldMatrixInt64*)
+//	a1 - holds multiply number
+//	a2 - holds address to address of output MldMatrixInt64
+//	     (MldMatrixInt64*)
+//
+// Valid Usage:
+// 	* a0 - must be valid address of MldMatrixInt64
+//	* a2 - must be valid pointer of MldMatrixInt64
+//
+// Return Codes:
+// 	* On success, this command returns:
+//	    - MLD_SUCCESS 
+//	* On failurre, this command returns:
+//	    - MLD_INVALID_ARGUMENT
+//	    - MLD_UNABLE_TO_ALLOCATE_MEMORY
+ENTRY(mldMulNumMatrixInt64)
+	addi	sp, sp, -48
+	sd	s0, 0(sp)
+	sd	ra, 8(sp)
+	sd	s1, 16(sp)
+	sd	s2, 24(sp)
+	sd	s3, 32(sp)
+
+	// Reserve input registers
+	mv	s0, a0
+	mv	s1, a1
+	mv	s2, a2
+
+	// Create output MldMatrixInt64
+	mv	a2, s2
+	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
+	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
+	call	mldCreateMatrixInt64
+
+	// Check MldResult value on MLD_SUCCESS
+	mv	s3, a0
+	bnez	a0, L(err4)
+
+	li	t4, 0		// i-counter
+	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
+0:
+	beq	t4, t5, 1f
+
+	// Get element of input matrix
+	mv	a0, s0
+	mv	a1, t4
+	mldGetItemByIdxMatrixInt64Inline
+	mv	t6, a0
+
+	// output[i] = input[i] * num
+	mv	a0, s2
+	mv	a1, t4
+	mul	a2, t6, s1
+	mldSetItemByIdxMatrixInt64Inline
+
+	addi	t4, t4, 1
+	j	0b
+1:
+	li	a0, MLD_SUCCESS
+
+L(out4):
+	ld	s0, 0(sp)
+	ld	ra, 8(sp)
+	ld	s1, 16(sp)
+	ld	s2, 24(sp)
+	ld	s3, 32(sp)
+	addi	sp, sp, 48
+	ret
+
+L(err4):
+	mv	a0, s3
+	j	L(out4)
+END(mldMulNumMatrixInt64)
+
+// Add matrix by number
+//
+// Parameters:
+// 	a0 - holds address of left MldMatrixInt64 (MldMatrixInt64*)
+//	a1 - holds sub number
+//	a2 - holds address to address of output MldMatrixInt64
+//	     (MldMatrixInt64*)
+//
+// Valid Usage:
+// 	* a0 - must be valid address of MldMatrixInt64
+//	* a2 - must be valid pointer of MldMatrixInt64
+//
+// Return Codes:
+// 	* On success, this command returns:
+//	    - MLD_SUCCESS 
+//	* On failurre, this command returns:
+//	    - MLD_INVALID_ARGUMENT
+//	    - MLD_UNABLE_TO_ALLOCATE_MEMORY
+ENTRY(mldAddNumMatrixInt64)
+	addi	sp, sp, -48
+	sd	s0, 0(sp)
+	sd	ra, 8(sp)
+	sd	s1, 16(sp)
+	sd	s2, 24(sp)
+	sd	s3, 32(sp)
+
+	// Reserve input registers
+	mv	s0, a0
+	mv	s1, a1
+	mv	s2, a2
+
+	// Create output MldMatrixInt64
+	mv	a2, s2
+	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
+	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
+	call	mldCreateMatrixInt64
+
+	// Check MldResult value on MLD_SUCCESS
+	mv	s3, a0
+	bnez	a0, L(err5)
+
+	li	t4, 0		// i-counter
+	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
+0:
+	beq	t4, t5, 1f
+
+	// Get element of input matrix
+	mv	a0, s0
+	mv	a1, t4
+	mldGetItemByIdxMatrixInt64Inline
+	mv	t6, a0
+
+	// output[i] = input[i] + num
+	mv	a0, s2
+	mv	a1, t4
+	add	a2, t6, s1
+	mldSetItemByIdxMatrixInt64Inline
+
+	addi	t4, t4, 1
+	j	0b
+1:
+	li	a0, MLD_SUCCESS
+
+L(out5):
+	ld	s0, 0(sp)
+	ld	ra, 8(sp)
+	ld	s1, 16(sp)
+	ld	s2, 24(sp)
+	ld	s3, 32(sp)
+	addi	sp, sp, 48
+	ret
+
+L(err5):
+	mv	a0, s3
+	j	L(out5)
+END(mldAddNumMatrixInt64)
+
+// Sub matrix by number
+//
+// Parameters:
+// 	a0 - holds address of left MldMatrixInt64 (MldMatrixInt64*)
+//	a1 - holds sub number
+//	a2 - holds address to address of output MldMatrixInt64
+//
+// Valid Usage:
+// 	* a0 - must be valid address of MldMatrixInt64
+//	* a2 - must be valid pointer of MldMatrixInt64
+//
+// Return Codes:
+// 	* On success, this command returns:
+//	    - MLD_SUCCESS 
+//	* On failurre, this command returns:
+//	    - MLD_INVALID_ARGUMENT
+//	    - MLD_UNABLE_TO_ALLOCATE_MEMORY
+ENTRY(mldSubNumMatrixInt64)
+	addi	sp, sp, -48
+	sd	s0, 0(sp)
+	sd	ra, 8(sp)
+	sd	s1, 16(sp)
+	sd	s2, 24(sp)
+	sd	s3, 32(sp)
+
+	// Reserve input registers
+	mv	s0, a0
+	mv	s1, a1
+	mv	s2, a2
+
+	// Create output MldMatrixInt64
+	mv	a2, s2
+	ld	a0, MLD_MATRIX_ROWS_OFFSET(s0)
+	ld	a1, MLD_MATRIX_COLUMNS_OFFSET(s0)
+	call	mldCreateMatrixInt64
+
+	// Check MldResult value on MLD_SUCCESS
+	mv	s3, a0
+	bnez	a0, L(err6)
+
+	li	t4, 0		// i-counter
+	ld	t5, MLD_MATRIX_LENGTH_OFFSET(s0)
+0:
+	beq	t4, t5, 1f
+
+	// Get element of input matrix
+	mv	a0, s0
+	mv	a1, t4
+	mldGetItemByIdxMatrixInt64Inline
+	mv	t6, a0
+
+	// output[i] = input[i] - num
+	mv	a0, s2
+	mv	a1, t4
+	sub	a2, t6, s1
+	mldSetItemByIdxMatrixInt64Inline
+
+	addi	t4, t4, 1
+	j	0b
+1:
+	li	a0, MLD_SUCCESS
+
+L(out6):
+	ld	s0, 0(sp)
+	ld	ra, 8(sp)
+	ld	s1, 16(sp)
+	ld	s2, 24(sp)
+	ld	s3, 32(sp)
+	addi	sp, sp, 48
+	ret
+
+L(err6):
+	mv	a0, s3
+	j	L(out6)
+END(mldSubNumMatrixInt64)
+
 // Prints matrix of MldMatrixInt64
 //
 // Parameters:

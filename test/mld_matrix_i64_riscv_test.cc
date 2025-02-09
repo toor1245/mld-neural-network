@@ -205,7 +205,7 @@ TEST(MldMatrixInt64Test, AddMatrixInt64_AddTwoMatrices_AssertMustBeEqual) {
     }
 }
 
-TEST(MldMatrixInt64Test, SubMatrixInt64_AddTwoMatrices_AssertMustBeEqual) {
+TEST(MldMatrixInt64Test, SubMatrixInt64_SubTwoMatrices_AssertMustBeEqual) {
     // Arrange
     const uint64_t rows = 3;
     const uint64_t columns = 3;
@@ -244,6 +244,138 @@ TEST(MldMatrixInt64Test, SubMatrixInt64_AddTwoMatrices_AssertMustBeEqual) {
 
     // Act
     enum MldResult actualResult = mldSubMatrixInt64(&matrixA, &matrixB, &matrixC);
+
+    // Assert
+    EXPECT_EQ(actualResult, expectedResult);
+    EXPECT_EQ(matrixC.rows, matrixExpected.rows);
+    EXPECT_EQ(matrixC.columns, matrixExpected.columns);
+    EXPECT_EQ(matrixC.length, matrixExpected.length);
+    
+    for (size_t i = 0; i < matrixExpected.length; ++i) {
+	EXPECT_EQ(matrixExpected.array[i], matrixC.array[i]);
+    }
+}
+
+TEST(MldMatrixInt64Test, AddNumMatrixInt64_AddTwoMatrices_AssertMustBeEqual) {
+    // Arrange
+    const uint64_t rows = 3;
+    const uint64_t columns = 3;
+    enum MldResult expectedResult = MldResult::MLD_RESULT_SUCCESS;
+    struct MldMatrixInt64 matrixA;
+    struct MldMatrixInt64 matrixC;
+    struct MldMatrixInt64 matrixExpected;
+
+    mldCreateMatrixInt64(rows, columns, &matrixA);
+    mldCreateMatrixInt64(rows, columns, &matrixC);
+    mldCreateMatrixInt64(rows, columns, &matrixExpected);
+
+    int64_t arrayA[] = {
+	1, 5, 8,
+	3, 5, 6,
+	4, 8, 11,
+    };
+
+    int64_t num = 5;
+
+    int64_t arrayExpected[] = {
+	6, 10, 13,
+	8, 10, 11,
+	9, 13, 16,
+    };
+
+    memcpy(matrixA.array, arrayA, matrixA.length * sizeof(int64_t));
+    memcpy(matrixExpected.array, arrayExpected, matrixExpected.length * sizeof(int64_t));
+
+    // Act
+    enum MldResult actualResult = mldAddNumMatrixInt64(&matrixA, num, &matrixC);
+
+    // Assert
+    EXPECT_EQ(actualResult, expectedResult);
+    EXPECT_EQ(matrixC.rows, matrixExpected.rows);
+    EXPECT_EQ(matrixC.columns, matrixExpected.columns);
+    EXPECT_EQ(matrixC.length, matrixExpected.length);
+    
+    for (size_t i = 0; i < matrixExpected.length; ++i) {
+	EXPECT_EQ(matrixExpected.array[i], matrixC.array[i]);
+    }
+}
+
+TEST(MldMatrixInt64Test, SubNumMatrixInt64_SubMatrixByNum_AssertMustBeEqual) {
+    // Arrange
+    const uint64_t rows = 3;
+    const uint64_t columns = 3;
+    enum MldResult expectedResult = MldResult::MLD_RESULT_SUCCESS;
+    struct MldMatrixInt64 matrixA;
+    struct MldMatrixInt64 matrixC;
+    struct MldMatrixInt64 matrixExpected;
+
+    mldCreateMatrixInt64(rows, columns, &matrixA);
+    mldCreateMatrixInt64(rows, columns, &matrixC);
+    mldCreateMatrixInt64(rows, columns, &matrixExpected);
+
+    int64_t arrayA[] = {
+	1, 5, 8,
+	3, 5, 6,
+	4, 8, 11,
+    };
+
+    int64_t num = 5;
+
+    int64_t arrayExpected[] = {
+	-4, 0, 3,
+	-2, 0, 1,
+	-1, 3, 6,
+    };
+
+    memcpy(matrixA.array, arrayA, matrixA.length * sizeof(int64_t));
+    memcpy(matrixExpected.array, arrayExpected, matrixExpected.length * sizeof(int64_t));
+
+    // Act
+    enum MldResult actualResult = mldSubNumMatrixInt64(&matrixA, num, &matrixC);
+
+    // Assert
+    EXPECT_EQ(actualResult, expectedResult);
+    EXPECT_EQ(matrixC.rows, matrixExpected.rows);
+    EXPECT_EQ(matrixC.columns, matrixExpected.columns);
+    EXPECT_EQ(matrixC.length, matrixExpected.length);
+    
+    for (size_t i = 0; i < matrixExpected.length; ++i) {
+	EXPECT_EQ(matrixExpected.array[i], matrixC.array[i]);
+    }
+}
+
+TEST(MldMatrixInt64Test, MulNumMatrixInt64_MulMatrixyByNum_AssertMustBeEqual) {
+    // Arrange
+    const uint64_t rows = 3;
+    const uint64_t columns = 3;
+    enum MldResult expectedResult = MldResult::MLD_RESULT_SUCCESS;
+    struct MldMatrixInt64 matrixA;
+    struct MldMatrixInt64 matrixC;
+    struct MldMatrixInt64 matrixExpected;
+
+    mldCreateMatrixInt64(rows, columns, &matrixA);
+    mldCreateMatrixInt64(rows, columns, &matrixC);
+    mldCreateMatrixInt64(rows, columns, &matrixExpected);
+
+    int64_t arrayA[] = {
+	1, 5, 8,
+	3, 5, 6,
+	4, 8, 11,
+    };
+
+    int64_t num = 5;
+
+    int64_t arrayExpected[] = {
+	5, 25, 40,
+	15, 25, 30,
+	20, 40, 55,
+    };
+
+    memcpy(matrixA.array, arrayA, matrixA.length * sizeof(int64_t));
+    memcpy(matrixExpected.array, arrayExpected, matrixExpected.length * sizeof(int64_t));
+
+    // Act
+    enum MldResult actualResult = mldMulNumMatrixInt64(&matrixA, num, &matrixC);
 
     // Assert
     EXPECT_EQ(actualResult, expectedResult);
